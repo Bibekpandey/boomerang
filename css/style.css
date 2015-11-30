@@ -1,0 +1,9 @@
+canvas {
+    display:inline;
+    border:solid 3px #aaa;
+    border-radius:5px;
+}
+
+#heading {
+    text-align:center;
+}

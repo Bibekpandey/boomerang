@@ -1,0 +1,132 @@
+<html>
+    <head>
+        <title>BoomRang:SinglePlayer Game</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <script src="js/jquery.js"></script>
+        <script src="js/objects.js"></script>
+    </head>
+
+    <body>
+        <div id="heading">
+            <h3>BOOMRANG</h3>
+        </div>
+        <canvas id="game-canvas" width="720" height="480" align="center"> 
+        </canvas>
+    </body>
+
+    <script>
+        var g_tick=0;
+        var keys= {}; // pressed keys
+        var objects = new Array();
+        document.onkeydown = function (e) {
+            keys[e.which] = true;
+         }
+
+         document.onkeyup = function(e) {
+             make_movement(bullet);
+             keys[e.which]=false;
+             //keys={};
+         }
+
+        function make_movement(obj) {
+            if(keys[37] && keys[38]) {
+                obj.x-=5;
+                obj.y-=5;
+            }else if(keys[39] && keys[38]) {
+                obj.x+=5;
+                obj.y-=5;
+            }else if(keys[37] && keys[40]) {
+                obj.x-=5;
+                obj.y+=5;
+            }else if(keys[39] && keys[40]) {
+                obj.x+=5;
+                obj.y+=5;
+            }
+            else if(keys[37])  obj.x-=5;
+            else if(keys[38])  obj.y-=5;
+            else if(keys[39])  obj.x+=5;
+            else if(keys[40])  obj.y+=5;
+            else {}
+        }
+
+
+        var numImage = new Image();
+        numImage.src = "images/coin.png";
+        var bulletImg = new Image();
+        bulletImg.src = "images/bullet.png";
+
+        var canvas={};
+        canvas.width=720;
+        canvas.height=480;
+
+        
+        var canvas = document.getElementById("game-canvas");
+        var g_context = canvas.getContext("2d");
+        var nums = sprite({
+            context:canvas.getContext("2d"),
+            width:440,
+            height:40,
+            image:numImage
+        });
+
+        var bullet = sprite({
+            context:canvas.getContext("2d"),
+            width:36,
+            height:17,
+            image:bulletImg,
+            numberOfFrames:1
+        });
+        var bullet1 = sprite({
+            context:canvas.getContext("2d"),
+            width:36,
+            height:17,
+            image:bulletImg,
+            numberOfFrames:1
+        });
+
+        bullet1.x = bullet1.y = 400;
+        // modify update
+        nums.x = nums.y = 0;
+        bullet.x = bullet.y = 50;
+        bullet.render = function () {
+            this.context.drawImage(this.image,
+            0,0,
+            this.width,
+            this.height,
+            this.x,
+            this.y,
+            this.width,
+            this.height
+            );
+        };
+
+        bullet.update = function() {
+//            this.x+=1;
+ //           this.y+=0.5
+        }
+        bullet1.update = function() {
+            this.x-=1;
+            this.y-=0.5;
+        }
+
+        objects.push(bullet);
+        objects.push(bullet1);
+        objects.push(nums);
+
+        function gameLoop() {
+            g_tick+=1;
+            window.requestAnimationFrame(gameLoop);
+            g_context.clearRect(0,0,canvas.width, canvas.height);
+            for(var x=0;x<objects.length;x++) {
+                objects[x].update();
+                objects[x].render();
+            }
+            if(g_tick==2){
+                console.log(JSON.stringify(keys));
+                make_movement(bullet);
+                g_tick=0;
+            }
+        }
+        numImage.addEventListener("load", gameLoop);
+    </script>
+</html>
