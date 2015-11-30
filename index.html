@@ -17,7 +17,7 @@
     <script>
         var g_tick=0;
         var keys= {}; // pressed keys
-        var objects = new Array();
+        var g_objects = new Array();
         document.onkeydown = function (e) {
             keys[e.which] = true;
          }
@@ -62,70 +62,60 @@
         
         var canvas = document.getElementById("game-canvas");
         var g_context = canvas.getContext("2d");
-        var nums = sprite({
+        var nums = GameObject({
             context:canvas.getContext("2d"),
             width:440,
             height:40,
-            image:numImage
+            numberOfFrames:10,
+            image:numImage,
+            name:'coin'
         });
 
-        var bullet = sprite({
+        var bullet = GameObject({
             context:canvas.getContext("2d"),
             width:36,
             height:17,
             image:bulletImg,
-            numberOfFrames:1
+            numberOfFrames:1,
+            name:'bullet'
         });
-        var bullet1 = sprite({
+        var bullet1 = GameObject({
             context:canvas.getContext("2d"),
             width:36,
             height:17,
             image:bulletImg,
-            numberOfFrames:1
+            numberOfFrames:1,
+            name:'bullet'
         });
 
         bullet1.x = bullet1.y = 400;
         // modify update
         nums.x = nums.y = 0;
         bullet.x = bullet.y = 50;
-        bullet.render = function () {
-            this.context.drawImage(this.image,
-            0,0,
-            this.width,
-            this.height,
-            this.x,
-            this.y,
-            this.width,
-            this.height
-            );
-        };
 
-        bullet.update = function() {
-//            this.x+=1;
- //           this.y+=0.5
-        }
         bullet1.update = function() {
-            this.x-=1;
-            this.y-=0.5;
+            this.x-=0.01;
+            this.y-=0.05;
         }
 
-        objects.push(bullet);
-        objects.push(bullet1);
-        objects.push(nums);
+        g_objects.push(bullet);
+        g_objects.push(bullet1);
+        g_objects.push(nums);
 
         function gameLoop() {
             g_tick+=1;
             window.requestAnimationFrame(gameLoop);
             g_context.clearRect(0,0,canvas.width, canvas.height);
-            for(var x=0;x<objects.length;x++) {
-                objects[x].update();
-                objects[x].render();
+            for(var x=0;x<g_objects.length;x++) {
+                g_objects[x].update();
+                g_objects[x].render();
             }
-            if(g_tick==2){
-                console.log(JSON.stringify(keys));
+            if(g_tick%2==0){
+                //console.log(JSON.stringify(keys));
                 make_movement(bullet);
-                g_tick=0;
+                checkCollision(g_objects);
             }
+
         }
         numImage.addEventListener("load", gameLoop);
     </script>
