@@ -8,52 +8,74 @@
 
     <body>
         <div id="heading">
-            <h3>BOOMRANG</h3>
+            <h3>BOOMERANG </h3>
         </div>
-        <canvas id="game-canvas" width="720" height="480" align="center"> 
-        </canvas>
+        <div>
+            <canvas id="game-canvas" width="720" height="480" align="center" style=";position:absolute;z-index:10"> 
+            </canvas>
+        </div>
+
     </body>
 
     <script>
         var g_tick=0;
         var keys= {}; // pressed keys
         var g_objects = new Array();
+        var step = 3;
+
         document.onkeydown = function (e) {
             keys[e.which] = true;
+            make_movement(boy);
          }
 
          document.onkeyup = function(e) {
-             make_movement(bullet);
+             //make_movement(bullet);
              keys[e.which]=false;
+             boy.currentFrame=0;
              //keys={};
          }
 
         function make_movement(obj) {
+            obj.tickCount+=1;
+            obj.currentFrame = (obj.currentFrame+1)%
+                obj.frameDetails.numFrames[obj.currentAction];
             if(keys[37] && keys[38]) {
-                obj.x-=5;
-                obj.y-=5;
+                obj.x-=step;
+                obj.y-=step;
             }else if(keys[39] && keys[38]) {
-                obj.x+=5;
-                obj.y-=5;
+                obj.x+=step;
+                obj.y-=step;
             }else if(keys[37] && keys[40]) {
-                obj.x-=5;
-                obj.y+=5;
+                obj.x-=step;
+                obj.y+=step;
             }else if(keys[39] && keys[40]) {
-                obj.x+=5;
-                obj.y+=5;
+                obj.x+=step;
+                obj.y+=step;
             }
-            else if(keys[37])  obj.x-=5;
-            else if(keys[38])  obj.y-=5;
-            else if(keys[39])  obj.x+=5;
-            else if(keys[40])  obj.y+=5;
+            else if(keys[37])  {
+                obj.currentAction="left";
+                obj.x-=step;
+            }
+            else if(keys[38])  {
+                obj.currentAction="up";
+                obj.y-=step;
+            }
+            else if(keys[39])  {
+                obj.currentAction="right";
+                obj.x+=step;
+            }
+            else if(keys[40]) {
+                obj.currentAction="down";
+                obj.y+=step;
+            }
             else {}
         }
 
 
-        var numImage = new Image();
-        numImage.src = "images/coin.png";
-        var bulletImg = new Image();
-        bulletImg.src = "images/bullet.png";
+        var boyImg = new Image();
+        boyImg.src = "images/boy.png";
+        var hillImg = new Image();
+        hillImg.src = "images/hills.png";
 
         var canvas={};
         canvas.width=720;
@@ -62,61 +84,59 @@
         
         var canvas = document.getElementById("game-canvas");
         var g_context = canvas.getContext("2d");
-        var nums = GameObject({
+
+        var boy = GameObject({
             context:canvas.getContext("2d"),
-            width:440,
-            height:40,
-            numberOfFrames:10,
-            image:numImage,
-            name:'coin'
+            image:boyImg,
+            width:832,
+            height:1344,
+            name:'boy',
+            frameDetails: { 
+                numActions:21, // number of actions(walk, fly, jump, etc)
+                numFrames:{ // number of frames in action
+                    "right":9,
+                    "left":9,
+                    "up":9,
+                    "down":9,
+                },
+                action:{
+                    "right": 11, // row in sprite image
+                    "left":9,
+                    "up":8,
+                    "down":10
+                },
+            },
+            currentAction:"right",
+            defaultAction:0,
+            frameWidth:64,
+            frameHeight:64,
+            ticksPerFrame:2
         });
 
-        var bullet = GameObject({
+        var hills = GameObject({
             context:canvas.getContext("2d"),
-            width:36,
-            height:17,
-            image:bulletImg,
+            image:hillImg,
             numberOfFrames:1,
-            name:'bullet'
-        });
-        var bullet1 = GameObject({
-            context:canvas.getContext("2d"),
-            width:36,
-            height:17,
-            image:bulletImg,
-            numberOfFrames:1,
-            name:'bullet'
+            width:426,
+            height:240,
+            name:'hill'
         });
 
-        bullet1.x = bullet1.y = 400;
-        // modify update
-        nums.x = nums.y = 0;
-        bullet.x = bullet.y = 50;
+        hills.render = function () {
+            this.context.drawImage(this.image,
+                0,0, this.width, this.height, 0,0, 720,480);
+        };
 
-        bullet1.update = function() {
-            this.x-=0.01;
-            this.y-=0.05;
-        }
-
-        g_objects.push(bullet);
-        g_objects.push(bullet1);
-        g_objects.push(nums);
-
+        
         function gameLoop() {
             g_tick+=1;
             window.requestAnimationFrame(gameLoop);
             g_context.clearRect(0,0,canvas.width, canvas.height);
-            for(var x=0;x<g_objects.length;x++) {
-                g_objects[x].update();
-                g_objects[x].render();
-            }
-            if(g_tick%2==0){
-                //console.log(JSON.stringify(keys));
-                make_movement(bullet);
-                checkCollision(g_objects);
-            }
-
+            hills.update();
+            hills.render();
+            boy.render();
+            boy.update();
         }
-        numImage.addEventListener("load", gameLoop);
+        boyImg.addEventListener("load", gameLoop);
     </script>
 </html>
