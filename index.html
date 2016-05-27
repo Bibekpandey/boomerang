@@ -4,6 +4,8 @@
         <link rel="stylesheet" type="text/css" href="css/style.css">
         <script src="js/jquery.js"></script>
         <script src="js/objects.js"></script>
+        <script src="js/load_objects.js"></script>
+        <script src="js/motion.js"></script>
     </head>
 
     <body>
@@ -20,123 +22,33 @@
     <script>
         var g_tick=0;
         var keys= {}; // pressed keys
-        var g_objects = new Array();
-        var step = 3;
+        
+        var canvas = document.getElementById("game-canvas");
+        var g_context = canvas.getContext("2d");
+        
+        var g_objects = loadObjects(canvas);
 
         document.onkeydown = function (e) {
             keys[e.which] = true;
-            make_movement(boy);
+            make_movement(g_objects[0]);
          }
 
          document.onkeyup = function(e) {
              //make_movement(bullet);
              keys[e.which]=false;
-             boy.currentFrame=0;
+             g_objects[0].currentFrame=0;
              //keys={};
          }
-
-        function make_movement(obj) {
-            obj.tickCount+=1;
-            obj.currentFrame = (obj.currentFrame+1)%
-                obj.frameDetails.numFrames[obj.currentAction];
-            if(keys[37] && keys[38]) {
-                obj.x-=step;
-                obj.y-=step;
-            }else if(keys[39] && keys[38]) {
-                obj.x+=step;
-                obj.y-=step;
-            }else if(keys[37] && keys[40]) {
-                obj.x-=step;
-                obj.y+=step;
-            }else if(keys[39] && keys[40]) {
-                obj.x+=step;
-                obj.y+=step;
-            }
-            else if(keys[37])  {
-                obj.currentAction="left";
-                obj.x-=step;
-            }
-            else if(keys[38])  {
-                obj.currentAction="up";
-                obj.y-=step;
-            }
-            else if(keys[39])  {
-                obj.currentAction="right";
-                obj.x+=step;
-            }
-            else if(keys[40]) {
-                obj.currentAction="down";
-                obj.y+=step;
-            }
-            else {}
-        }
-
-
-        var boyImg = new Image();
-        boyImg.src = "images/boy.png";
-        var hillImg = new Image();
-        hillImg.src = "images/hills.png";
-
-        var canvas={};
-        canvas.width=720;
-        canvas.height=480;
-
-        
-        var canvas = document.getElementById("game-canvas");
-        var g_context = canvas.getContext("2d");
-
-        var boy = GameObject({
-            context:canvas.getContext("2d"),
-            image:boyImg,
-            width:832,
-            height:1344,
-            name:'boy',
-            frameDetails: { 
-                numActions:21, // number of actions(walk, fly, jump, etc)
-                numFrames:{ // number of frames in action
-                    "right":9,
-                    "left":9,
-                    "up":9,
-                    "down":9,
-                },
-                action:{
-                    "right": 11, // row in sprite image
-                    "left":9,
-                    "up":8,
-                    "down":10
-                },
-            },
-            currentAction:"right",
-            defaultAction:0,
-            frameWidth:64,
-            frameHeight:64,
-            ticksPerFrame:2
-        });
-
-        var hills = GameObject({
-            context:canvas.getContext("2d"),
-            image:hillImg,
-            numberOfFrames:1,
-            width:426,
-            height:240,
-            name:'hill'
-        });
-
-        hills.render = function () {
-            this.context.drawImage(this.image,
-                0,0, this.width, this.height, 0,0, 720,480);
-        };
-
         
         function gameLoop() {
-            g_tick+=1;
+            //g_tick+=1;
             window.requestAnimationFrame(gameLoop);
             g_context.clearRect(0,0,canvas.width, canvas.height);
-            hills.update();
-            hills.render();
-            boy.render();
-            boy.update();
+            for(var x=1;x<g_objects.length;x++) {
+                g_objects[x].render();
+            }
+            g_objects[0].render();
         }
-        boyImg.addEventListener("load", gameLoop);
+        gameLoop();
     </script>
 </html>

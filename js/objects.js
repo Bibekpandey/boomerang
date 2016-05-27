@@ -11,6 +11,7 @@
 // GameObject object
 function GameObject(options) {
     var obj = {};
+    obj.step = options.step || 0; // used for moving objects
     obj.type = options.type || "GameObject";
     obj.name = options.name || "NoName";
     obj.frameIndex=0;
@@ -55,6 +56,7 @@ function GameObject(options) {
             this.width / 13,
             this.height/21
         );
+        obj.update();
     };
 
     obj.update = function() {
